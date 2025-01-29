@@ -22,10 +22,11 @@
     "react": "18.3.1",
     "react-native": "0.76.6",
     "react-native-date-picker": "^5.0.9",
-    "react-native-datepicker": "^1.7.2",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-vector-icons": "^10.2.0",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "react-native-gesture-handler": "~2.20.2",
+    "@react-native-community/datetimepicker": "8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

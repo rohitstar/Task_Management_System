@@ -12,6 +12,8 @@ import TaskDetailsScreen from "./src/TaskDetailsScreen";
 import DarkModeCustomization from "./src/DarkModeRange";
 import { Ionicons } from "react-native-vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import UpcomingDeadline from "./src/UpcomingDeadlineScreen";
 
 const store = configureStore({ reducer: { tasks: taskSlice.reducer } });
 
@@ -37,6 +39,10 @@ const CustomHeader = ({ navigation, title }) => {
         darkMode ? styles.darkHeader : styles.lightHeader,
       ]}
     >
+      <StatusBar
+        barStyle={darkMode ? "light-content" : "dark-content"}
+        backgroundColor={darkMode ? "#222" : "#fff"}
+      />
       {navigation.canGoBack() && (
         <Ionicons
           name="arrow-back"
@@ -89,6 +95,11 @@ const TaskStack = () => (
       component={TaskDetailsScreen}
       options={{ title: "Task Details" }}
     />
+    <Stack.Screen
+      name="UpcomingDeadline"
+      component={UpcomingDeadline}
+      options={{ title: "Upcoming Deadlines Task" }}
+    />
   </Stack.Navigator>
 );
 
@@ -126,11 +137,13 @@ const AppTabs = () => {
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <NavigationContainer>
-        <AppTabs />
-      </NavigationContainer>
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <NavigationContainer>
+          <AppTabs />
+        </NavigationContainer>
+      </Provider>
+    </GestureHandlerRootView>
   );
 };
 

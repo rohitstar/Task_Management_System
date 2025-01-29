@@ -4,7 +4,6 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
-  TouchableOpacity,
 } from "react-native";
 import { getPriorityColor, getStatusColor } from "./theme/colors";
 import { useSelector } from "react-redux";

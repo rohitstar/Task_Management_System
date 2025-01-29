@@ -31,7 +31,7 @@ const DarkModeCustomization = ({ navigation }) => {
     dispatch(setSearchQuery(""));
     dispatch(setFilter({}));
     dispatch(setDarkModeSettings({ contrast: 1, brightness: 1 }));
-    navigation.navigate("Tasks");
+    navigation.navigate("TaskList");
   };
 
   return (
@@ -39,8 +39,14 @@ const DarkModeCustomization = ({ navigation }) => {
       style={[
         styles.container,
         darkMode
-          ? { backgroundColor: `rgba(20, 20, 20, ${contrast})` }
-          : { backgroundColor: `rgba(255, 255, 255, ${contrast})` },
+          ? {
+              backgroundColor: `rgba(20, 20, 20, ${contrast})`,
+              filter: `brightness(${brightness})`,
+            }
+          : {
+              backgroundColor: `rgba(255, 255, 255, ${contrast})`,
+              filter: `brightness(${brightness})`,
+            },
       ]}
     >
       <View style={{ paddingHorizontal: 20, marginTop: 20 }}>

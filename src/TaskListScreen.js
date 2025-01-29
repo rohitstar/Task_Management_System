@@ -13,7 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { taskSlice } from "./redux/taskSlice";
 import { getStatusColor, getPriorityColor } from "./theme/colors";
 import { FontAwesome5 } from "react-native-vector-icons";
-import DatePicker from "react-native-date-picker";
+import { Swipeable } from "react-native-gesture-handler";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const fetchTasks = async (page = 1, limit = 10) => {
   return new Promise((resolve) => {
@@ -31,7 +32,7 @@ const fetchTasks = async (page = 1, limit = 10) => {
   });
 };
 
-const { setTasks, updateTaskInStore, setSearchQuery, addTask } =
+const { setTasks, updateTaskInStore, setSearchQuery, addTask, deleteTask } =
   taskSlice.actions;
 
 const TaskListScreen = ({ navigation }) => {
@@ -127,6 +128,7 @@ const TaskListScreen = ({ navigation }) => {
 
   const saveNewTask = () => {
     dispatch(addTask(newTask));
+    navigation.navigate("TaskDetails", { task: newTask });
     closeCreateModal();
   };
 
@@ -149,9 +151,11 @@ const TaskListScreen = ({ navigation }) => {
     setDatePickerVisible(true);
   };
 
-  const handleDateConfirm = (date) => {
-    setSelectedDate(date);
-    setNewTask({ ...newTask, dueDate: date.toISOString().split("T")[0] });
+  const handleDateConfirm = (event, date) => {
+    if (date) {
+      setSelectedDate(date);
+      setNewTask({ ...newTask, dueDate: date.toISOString().split("T")[0] });
+    }
     setDatePickerVisible(false);
   };
 
@@ -206,20 +210,49 @@ const TaskListScreen = ({ navigation }) => {
           >
             Tasks Overdue: {overdueTasksCount}
           </Text>
-          <Text
-            style={[styles.productivityText, { color: dynamicStyles.color }]}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            Upcoming Deadlines:
-          </Text>
-
-          {upcomingDeadlines.map((task) => (
             <Text
-              key={task.id}
+              style={[
+                styles.productivityText,
+                {
+                  color: dynamicStyles.color,
+                },
+              ]}
+            >
+              Upcoming Deadlines: {upcomingDeadlines?.length}{" "}
+            </Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("UpcomingDeadline", {
+                  task: upcomingDeadlines,
+                })
+              }
+            >
+              <Text
+                style={[
+                  styles.productivityText,
+                  { color: darkMode ? "red" : "blue" },
+                ]}
+              >
+                Click Here
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* {upcomingDeadlines.map((task) => (
+            <Text
+              key={task?.id}
               style={[styles.productivityText, { color: dynamicStyles.color }]}
             >
               {task.title} - {task.dueDate}
             </Text>
-          ))}
+          ))} */}
         </View>
       </View>
 
@@ -228,67 +261,88 @@ const TaskListScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         onEndReached={() => fetchMoreTasks(page + 1)}
         onEndReachedThreshold={0.5}
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.taskCard,
-              {
-                borderTopWidth: 16,
-                borderColor: getStatusColor(item.status),
-                flexDirection: "row",
-                justifyContent: "space-between",
-                backgroundColor: dynamicStyles?.backgroundColor,
-              },
-              styles.shadow,
-            ]}
-          >
+        renderItem={({ item }) => {
+          const handleDelete = (taskId) => {
+            dispatch(deleteTask(taskId));
+          };
+
+          const renderRightActions = (progress, dragX) => (
             <TouchableOpacity
-              onPress={() => navigation.navigate("TaskDetails", { task: item })}
+              style={styles.deleteButton}
+              onPress={() => handleDelete(item?.id)}
             >
-              <Text style={[styles.taskTitle, { color: dynamicStyles?.color }]}>
-                {item.title}
-              </Text>
-              <Text
+              <FontAwesome5 name="trash" size={20} color="#fff" />
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
+          );
+          return (
+            <Swipeable renderRightActions={renderRightActions}>
+              <View
                 style={[
-                  styles.taskDescription,
-                  { color: dynamicStyles?.color },
+                  styles.taskCard,
+                  {
+                    borderTopWidth: 16,
+                    borderColor: getStatusColor(item.status),
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    backgroundColor: dynamicStyles?.backgroundColor,
+                  },
+                  styles.shadow,
                 ]}
               >
-                {item.description}
-              </Text>
-              <View style={{ flexDirection: "row", flex: 1 }}>
-                <View style={styles.statusBadge}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("TaskDetails", { task: item })
+                  }
+                >
+                  <Text
+                    style={[styles.taskTitle, { color: dynamicStyles?.color }]}
+                  >
+                    {item.title}
+                  </Text>
                   <Text
                     style={[
-                      styles.statusText,
-                      { backgroundColor: getStatusColor(item.status) },
+                      styles.taskDescription,
+                      { color: dynamicStyles?.color },
                     ]}
                   >
-                    {item.status}
+                    {item.description}
                   </Text>
-                </View>
+                  <View style={{ flexDirection: "row", flex: 1 }}>
+                    <View style={styles.statusBadge}>
+                      <Text
+                        style={[
+                          styles.statusText,
+                          { backgroundColor: getStatusColor(item.status) },
+                        ]}
+                      >
+                        {item.status}
+                      </Text>
+                    </View>
 
-                <View style={styles.statusBadge}>
-                  <Text
-                    style={[
-                      styles.statusText,
-                      { backgroundColor: getPriorityColor(item.priority) },
-                    ]}
-                  >
-                    {item.priority}
-                  </Text>
-                </View>
+                    <View style={styles.statusBadge}>
+                      <Text
+                        style={[
+                          styles.statusText,
+                          { backgroundColor: getPriorityColor(item.priority) },
+                        ]}
+                      >
+                        {item.priority}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => openModal(item)}>
+                  <FontAwesome5
+                    name="pen"
+                    size={16}
+                    color={darkMode ? "#fff" : "#000"}
+                  />
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => openModal(item)}>
-              <FontAwesome5
-                name="pen"
-                size={16}
-                color={darkMode ? "#fff" : "#000"}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
+            </Swipeable>
+          );
+        }}
         ListFooterComponent={
           loading && <Text style={styles.loadingText}>Loading...</Text>
         }
@@ -364,14 +418,14 @@ const TaskListScreen = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
 
-            <DatePicker
-              modal
-              open={datePickerVisible}
-              date={selectedDate}
-              mode="date"
-              onConfirm={handleDateConfirm}
-              onCancel={() => setDatePickerVisible(false)}
-            />
+            {datePickerVisible && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={handleDateConfirm}
+              />
+            )}
 
             <Text
               style={[styles.modalLabel, { color: darkMode ? "#bbb" : "#000" }]}
@@ -440,7 +494,6 @@ const TaskListScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Task Details Modal */}
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -497,6 +550,23 @@ const TaskListScreen = ({ navigation }) => {
                   ]}
                 >
                   {selectedTask.description}
+                </Text>
+
+                <Text
+                  style={[
+                    styles.modalLabel,
+                    { color: darkMode ? "#bbb" : "#000" },
+                  ]}
+                >
+                  Due Date:
+                </Text>
+                <Text
+                  style={[
+                    styles.modalValue,
+                    { color: darkMode ? "#ddd" : "#555" },
+                  ]}
+                >
+                  {selectedTask.dueDate}
                 </Text>
 
                 <Text
@@ -639,21 +709,18 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 
-  // Container for aligning text vertically
   productivityContainer: {
-    flexDirection: "column", // Stacks the text vertically
+    flexDirection: "column",
     marginTop: 10,
   },
 
-  // Text style for productivity info
   productivityText: {
     fontSize: 14,
     marginBottom: 8,
-    lineHeight: 15, // More spacing between lines
-    paddingLeft: 10, // Slight indentation for a cleaner look
+    lineHeight: 15,
+    paddingLeft: 10,
   },
 
-  // Optional: Create a badge for showing stats
   statsBadge: {
     paddingVertical: 5,
     paddingHorizontal: 12,
@@ -663,7 +730,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 
-  // Badge text style for labels
   badgeText: {
     fontSize: 14,
     fontWeight: "bold",
@@ -782,6 +848,25 @@ const styles = StyleSheet.create({
     width: "45%",
   },
   buttonText: { textAlign: "center", color: "#fff", fontSize: 16 },
+  deleteButton: {
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    // width: 70,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    marginRight: 10,
+    // height: "100%",
+    borderRadius: 10,
+    // marginVertical: 5,
+  },
+
+  deleteText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    marginTop: 5,
+  },
 });
 
 export default TaskListScreen;
