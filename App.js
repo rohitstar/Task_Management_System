@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, Switch, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Switch,
+  StatusBar,
+  Platform,
+} from "react-native";
 import { configureStore } from "@reduxjs/toolkit";
 import { taskSlice } from "./src/redux/taskSlice";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -153,7 +160,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: Platform.OS === "ios" ? 60 : 10,
     paddingBottom: 10,
   },
   lightHeader: {

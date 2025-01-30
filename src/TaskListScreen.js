@@ -192,9 +192,17 @@ const TaskListScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.productivityCard}>
+      <View
+        style={[
+          styles.productivityCard,
+          { backgroundColor: darkMode ? "#121212" : "#FFFFFF" },
+        ]}
+      >
         <Text
-          style={[styles.productivityTitle, { color: dynamicStyles.color }]}
+          style={[
+            styles.productivityTitle,
+            { color: darkMode ? "#E0E0E0" : dynamicStyles.color },
+          ]}
         >
           User Productivity Summary
         </Text>
@@ -218,12 +226,7 @@ const TaskListScreen = ({ navigation }) => {
             }}
           >
             <Text
-              style={[
-                styles.productivityText,
-                {
-                  color: dynamicStyles.color,
-                },
-              ]}
+              style={[styles.productivityText, { color: dynamicStyles.color }]}
             >
               Upcoming Deadlines: {upcomingDeadlines?.length}{" "}
             </Text>
@@ -244,15 +247,6 @@ const TaskListScreen = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           </View>
-
-          {/* {upcomingDeadlines.map((task) => (
-            <Text
-              key={task?.id}
-              style={[styles.productivityText, { color: dynamicStyles.color }]}
-            >
-              {task.title} - {task.dueDate}
-            </Text>
-          ))} */}
         </View>
       </View>
 
@@ -684,7 +678,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderWidth: 1,
     borderColor: "#ddd",
-    backgroundColor: "linear-gradient(45deg, #f5f7fa, #c3cfe2)",
+    // backgroundColor: "linear-gradient(45deg, #f5f7fa, #c3cfe2)",
     overflow: "hidden",
   },
   input: {
