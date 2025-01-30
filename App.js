@@ -33,10 +33,13 @@ const CustomHeader = ({ navigation, title }) => {
   const dispatch = useDispatch();
   const darkMode = useSelector((state) => state.tasks.darkMode);
 
-  const toggleTheme = async () => {
+  const toggleTheme = () => {
     const newTheme = !darkMode;
     dispatch(toggleDarkMode(newTheme));
-    await AsyncStorage.setItem("darkMode", JSON.stringify(newTheme));
+
+    AsyncStorage.setItem("darkMode", JSON.stringify(newTheme)).catch(
+      console.error
+    );
   };
 
   return (
@@ -157,6 +160,7 @@ const App = () => {
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
+    // flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,

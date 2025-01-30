@@ -255,6 +255,7 @@ const TaskListScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         onEndReached={() => fetchMoreTasks(page + 1)}
         onEndReachedThreshold={0.5}
+        windowSize={5}
         renderItem={({ item }) => {
           const handleDelete = (taskId) => {
             dispatch(deleteTask(taskId));
@@ -678,7 +679,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderWidth: 1,
     borderColor: "#ddd",
-    // backgroundColor: "linear-gradient(45deg, #f5f7fa, #c3cfe2)",
     overflow: "hidden",
   },
   input: {
@@ -846,13 +846,10 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
     justifyContent: "center",
     alignItems: "center",
-    // width: 70,
     paddingHorizontal: 10,
     marginBottom: 10,
     marginRight: 10,
-    // height: "100%",
     borderRadius: 10,
-    // marginVertical: 5,
   },
 
   deleteText: {
