@@ -33,13 +33,11 @@ const CustomHeader = ({ navigation, title }) => {
   const dispatch = useDispatch();
   const darkMode = useSelector((state) => state.tasks.darkMode);
 
-  const toggleTheme = () => {
+
+  const toggleTheme = async () => {
     const newTheme = !darkMode;
     dispatch(toggleDarkMode(newTheme));
-
-    AsyncStorage.setItem("darkMode", JSON.stringify(newTheme)).catch(
-      console.error
-    );
+    await AsyncStorage.setItem("darkMode", JSON.stringify(newTheme));
   };
 
   return (

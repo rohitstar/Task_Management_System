@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Modal,
   TextInput,
+  Alert,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { taskSlice } from "./redux/taskSlice";
@@ -53,6 +54,12 @@ const TaskListScreen = ({ navigation }) => {
     description: "",
     status: "",
   });
+
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [dueDateError, setDueDateError] = useState("");
+  const [priorityError, setPriorityError] = useState("");
+  const [statusError, setStatusError] = useState("");
 
   const { contrast, brightness } = darkModeSettings;
 
@@ -127,9 +134,50 @@ const TaskListScreen = ({ navigation }) => {
   };
 
   const saveNewTask = () => {
-    dispatch(addTask(newTask));
-    navigation.navigate("TaskDetails", { task: newTask });
-    closeCreateModal();
+    let isValid = true;
+
+    if (!newTask.title.trim()) {
+      setTitleError("Title is required");
+      isValid = false;
+    } else {
+      setTitleError("");
+    }
+
+    if (!newTask.description.trim()) {
+      setDescriptionError("Description is required");
+      isValid = false;
+    } else {
+      setDescriptionError("");
+    }
+
+    if (!newTask.dueDate) {
+      setDueDateError("Due Date is required");
+      isValid = false;
+    } else {
+      setDueDateError("");
+    }
+
+    if (!newTask.priority) {
+      setPriorityError("Priority is required");
+      isValid = false;
+    } else {
+      setPriorityError("");
+    }
+
+    if (!newTask.status) {
+      setStatusError("Status is required");
+      isValid = false;
+    } else {
+      setStatusError("");
+    }
+
+    if (isValid) {
+      dispatch(addTask(newTask));
+      navigation.navigate("TaskDetails", { task: newTask });
+      closeCreateModal();
+    } else {
+      Alert.alert("Validation Errors", "Please fill in all required fields.");
+    }
   };
 
   const completedTasksToday = tasks.filter(
@@ -252,7 +300,7 @@ const TaskListScreen = ({ navigation }) => {
 
       <FlatList
         data={tasks.filter(applyFilters)}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item?.id}
         onEndReached={() => fetchMoreTasks(page + 1)}
         onEndReachedThreshold={0.5}
         windowSize={5}
@@ -261,7 +309,7 @@ const TaskListScreen = ({ navigation }) => {
             dispatch(deleteTask(taskId));
           };
 
-          const renderRightActions = (progress, dragX) => (
+          const renderRightActions = () => (
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => handleDelete(item?.id)}
@@ -385,8 +433,14 @@ const TaskListScreen = ({ navigation }) => {
               placeholder="Task Name"
               placeholderTextColor={darkMode ? "#bbb" : "#666"}
               value={newTask.title}
-              onChangeText={(text) => setNewTask({ ...newTask, title: text })}
+              onChangeText={(text) => {
+                setNewTask({ ...newTask, title: text });
+                setTitleError("");
+              }}
             />
+            {titleError ? (
+              <Text style={styles.errorText}>{titleError}</Text>
+            ) : null}
 
             <TextInput
               style={[
@@ -402,9 +456,10 @@ const TaskListScreen = ({ navigation }) => {
               placeholderTextColor={darkMode ? "#bbb" : "#666"}
               multiline
               value={newTask.description}
-              onChangeText={(text) =>
-                setNewTask({ ...newTask, description: text })
-              }
+              onChangeText={(text) => {
+                setNewTask({ ...newTask, description: text });
+                setDescriptionError("");
+              }}
             />
 
             <TouchableOpacity onPress={openDatePicker} style={styles.input}>
@@ -412,6 +467,9 @@ const TaskListScreen = ({ navigation }) => {
                 Due Date: {newTask.dueDate || "Select Date"}
               </Text>
             </TouchableOpacity>
+            {dueDateError ? (
+              <Text style={styles.errorText}>{dueDateError}</Text>
+            ) : null}
 
             {datePickerVisible && (
               <DateTimePicker
@@ -447,6 +505,9 @@ const TaskListScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
             ))}
+            {priorityError ? (
+              <Text style={styles.errorText}>{priorityError}</Text>
+            ) : null}
 
             <Text
               style={[styles.modalLabel, { color: darkMode ? "#bbb" : "#000" }]}
@@ -473,6 +534,9 @@ const TaskListScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
             ))}
+            {statusError ? (
+              <Text style={styles.errorText}>{statusError}</Text>
+            ) : null}
 
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.saveButton} onPress={saveNewTask}>
@@ -857,6 +921,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
     marginTop: 5,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: -5,
+    marginBottom: 5,
   },
 });
 
